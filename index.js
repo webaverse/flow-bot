@@ -216,6 +216,43 @@ const _runSpec = async (userKeys, spec) => {
               const member = client.guilds.cache.get(guildId).members.cache.get(match[1]);
               // console.log('got split 2', member.user.send('woot'));
             }
+          } else if (split[0] === 'status') {
+            let userId, mnemonic, addr;
+            if (split.length >= 2 && (match = split[1].match(/<@!([0-9]+)>/))) {
+              userId = match[1];
+            } else {
+              userId = message.author.id;
+            }
+            const spec = await _getUser(userId);
+            mnemonic = spec.mnemonic;
+            addr = spec.addr;
+            if (!mnemonic) {
+              const spec = await _genKey(userId);
+              mnemonic = spec.mnemonic;
+              addr = spec.addr;
+            }
+            await _ensureBaked({addr, mnemonic});
+
+            const contractSource = await blockchain.getContractSource('getUserData.cdc');
+
+            const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
+              method: 'POST',
+              body: JSON.stringify({
+                /* address: addr,
+                mnemonic, */
+
+                limit: 100,
+                script: contractSource.replace(/ARG0/g, '0x' + addr),
+                wait: true,
+              }),
+            });
+            const response2 = await res.json();
+            const [name, avatarHash] = response2.encodedData.value.map(value => value.value);
+
+            message.channel.send('<@!' + message.author.id + '>: ```' + JSON.stringify({
+              name,
+              avatarHash,
+            }, null, 2) + '```');
           } else if (split[0] === 'balance') {
             let match;
             if (split.length >= 2 && (match = split[1].match(/<@!([0-9]+)>/))) {
