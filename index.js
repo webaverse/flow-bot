@@ -689,14 +689,13 @@ const _runSpec = async (userKeys, spec) => {
                         const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
                           method: 'POST',
                           body: JSON.stringify({
-                            address: config.exampleNft.address,
-                            mnemonic: config.exampleNft.mnemonic,
+                            address: addr,
+                            mnemonic,
 
                             limit: 100,
                             transaction: contractSource
                               .replace(/ARG0/g, hash)
-                              .replace(/ARG1/g, name)
-                              .replace(/ARG2/g, '0x' + addr),
+                              .replace(/ARG1/g, name),
                             wait: true,
                           }),
                         });
