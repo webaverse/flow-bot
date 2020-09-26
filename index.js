@@ -278,6 +278,34 @@ const _runSpec = async (userKeys, spec) => {
             const response2 = await res.json();
 
             message.channel.send('<@!' + message.author.id + '>: set name to ' + JSON.stringify(name));
+          } else if (split[0] === 'avatar') {
+            let {mnemonic, addr} = await _getUser();
+            if (!mnemonic) {
+              const spec = await _genKey();
+              mnemonic = spec.mnemonic;
+              addr = spec.addr;
+            }
+            await _ensureBaked({addr, mnemonic});
+
+            const avatar = split[1] || '';
+            const contractSource = await blockchain.getContractSource('setUserData.cdc');
+
+            const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
+              method: 'POST',
+              body: JSON.stringify({
+                address: addr,
+                mnemonic,
+
+                limit: 100,
+                transaction: contractSource
+                  .replace(/ARG0/g, 'avatar')
+                  .replace(/ARG1/g, avatar),
+                wait: true,
+              }),
+            });
+            const response2 = await res.json();
+
+            message.channel.send('<@!' + message.author.id + '>: set avatar to ' + JSON.stringify(avatar));
           } else if (split[0] === 'balance') {
             let match;
             if (split.length >= 2 && (match = split[1].match(/<@!([0-9]+)>/))) {
