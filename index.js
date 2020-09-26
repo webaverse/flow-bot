@@ -247,12 +247,9 @@ const _runSpec = async (userKeys, spec) => {
               }),
             });
             const response2 = await res.json();
-            const [name, avatarHash] = response2.encodedData.value.map(value => value.value && value.value.value);
+            const [name, avatar] = response2.encodedData.value.map(value => value.value && value.value.value);
 
-            message.channel.send('<@!' + message.author.id + '>: ```' + JSON.stringify({
-              name,
-              avatarHash,
-            }, null, 2) + '```');
+            message.channel.send('<@!' + message.author.id + '>: ' + `\`\`\`Name: ${name}\nAvatar: ${avatar}\n\`\`\``);
           } else if (split[0] === 'name') {
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
@@ -263,7 +260,7 @@ const _runSpec = async (userKeys, spec) => {
             await _ensureBaked({addr, mnemonic});
 
             const name = split[1] || '';
-            const contractSource = await blockchain.getContractSource('setUserName.cdc');
+            const contractSource = await blockchain.getContractSource('setUserData.cdc');
 
             const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
               method: 'POST',
@@ -272,7 +269,9 @@ const _runSpec = async (userKeys, spec) => {
                 mnemonic,
 
                 limit: 100,
-                transaction: contractSource.replace(/ARG0/g, name),
+                transaction: contractSource
+                  .replace(/ARG0/g, 'name')
+                  .replace(/ARG1/g, name),
                 wait: true,
               }),
             });
