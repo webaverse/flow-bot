@@ -596,7 +596,7 @@ const _runSpec = async (userKeys, spec) => {
                 `https://storage.exokit.org/${hash}`
               ],
             });
-          } else {
+          } else if (split[0] === 'key') {
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
               const spec = await _genKey();
@@ -605,57 +605,70 @@ const _runSpec = async (userKeys, spec) => {
             }
             await _ensureBaked({addr, mnemonic});
 
-            for (const [key, attachment] of message.attachments) {
-              const {name, proxyURL} = attachment;
+            const key = mnemonic + ' ' + blockchain.hexToWordList(addr);
+            message.author.send('Key: ```' + key + '```');
+          } else {
+            if (message.attachments.size > 0) {
+              let {mnemonic, addr} = await _getUser();
+              if (!mnemonic) {
+                const spec = await _genKey();
+                mnemonic = spec.mnemonic;
+                addr = spec.addr;
+              }
+              await _ensureBaked({addr, mnemonic});
 
-              await new Promise((accept, reject) => {
-                const proxyReq = https.request(proxyURL, proxyRes => {
-                  const req = https.request('https://storage.exokit.org/', {
-                    method: 'POST',
-                  }, res => {
-                    const bs = [];
-                    res.on('data', d => {
-                      bs.push(d);
-                    });
-                    res.on('end', async () => {
-                      const b = Buffer.concat(bs);
-                      const s = b.toString('utf8');
-                      const j = JSON.parse(s);
-                      const {hash} = j;
+              for (const [key, attachment] of message.attachments) {
+                const {name, proxyURL} = attachment;
 
-                      const contractSource = await blockchain.getContractSource('mintNft.cdc');
-
-                      const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                          address: config.exampleNft.address,
-                          mnemonic: config.exampleNft.mnemonic,
-
-                          limit: 100,
-                          transaction: contractSource
-                            .replace(/ARG0/g, hash)
-                            .replace(/ARG1/g, '0x' + addr),
-                          wait: true,
-                        }),
+                await new Promise((accept, reject) => {
+                  const proxyReq = https.request(proxyURL, proxyRes => {
+                    const req = https.request('https://storage.exokit.org/', {
+                      method: 'POST',
+                    }, res => {
+                      const bs = [];
+                      res.on('data', d => {
+                        bs.push(d);
                       });
-                      const response2 = await res.json();
+                      res.on('end', async () => {
+                        const b = Buffer.concat(bs);
+                        const s = b.toString('utf8');
+                        const j = JSON.parse(s);
+                        const {hash} = j;
 
-                      if (!response2.transaction.errorMessage) {
-                        message.channel.send('<@!' + message.author.id + '>: minted ' + hash + ' (https://storage.exokit.org/' + hash + ')');
-                      } else {
-                        message.channel.send('<@!' + message.author.id + '>: could not mint: ' + response2.transaction.errorMessage);
-                      }
+                        const contractSource = await blockchain.getContractSource('mintNft.cdc');
 
-                      accept();
+                        const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
+                          method: 'POST',
+                          body: JSON.stringify({
+                            address: config.exampleNft.address,
+                            mnemonic: config.exampleNft.mnemonic,
+
+                            limit: 100,
+                            transaction: contractSource
+                              .replace(/ARG0/g, hash)
+                              .replace(/ARG1/g, '0x' + addr),
+                            wait: true,
+                          }),
+                        });
+                        const response2 = await res.json();
+
+                        if (!response2.transaction.errorMessage) {
+                          message.channel.send('<@!' + message.author.id + '>: minted ' + hash + ' (https://storage.exokit.org/' + hash + ')');
+                        } else {
+                          message.channel.send('<@!' + message.author.id + '>: could not mint: ' + response2.transaction.errorMessage);
+                        }
+
+                        accept();
+                      });
+                      res.on('error', reject);
                     });
-                    res.on('error', reject);
+                    req.on('error', reject);
+                    proxyRes.pipe(req);
                   });
-                  req.on('error', reject);
-                  proxyRes.pipe(req);
+                  proxyReq.on('error', reject);
+                  proxyReq.end();
                 });
-                proxyReq.on('error', reject);
-                proxyReq.end();
-              });
+              }
             }
           }
         } else if (message.channel.type === 'dm') {
