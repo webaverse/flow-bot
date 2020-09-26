@@ -479,38 +479,6 @@ const _runSpec = async (userKeys, spec) => {
             } else {
               message.channcel.send('unknown user');
             }
-
-            /* let {mnemonic, addr} = await _getUser();
-            if (!mnemonic) {
-              const spec = await _genKey();
-              mnemonic = spec.mnemonic;
-              addr = spec.addr;
-            }
-            await _ensureBaked({addr, mnemonic});
-
-            {
-              const contractSource = await blockchain.getContractSource('mintToken.cdc');
-              const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
-                method: 'POST',
-                body: JSON.stringify({
-                  address: config.exampleToken.address,
-                  mnemonic,
-
-                  limit: 100,
-                  transaction: contractSource
-                    .replace(/ARG0/g, '0x' + addr)
-                    .replace(/ARG1/g, amount.toFixed(8)),
-                  wait: true,
-                }),
-              });
-              const response2 = await res.json();
-
-              if (!response2.transaction.errorMessage) {
-                message.channel.send('<@!' + message.author.id + '>: minted ' + amount);
-              } else {
-                message.channel.send('<@!' + message.author.id + '>: could not mint: ' + response2.transaction.errorMessage);
-              }
-            } */
           } else if (split[0] === 'inventory') {
             let userId, mnemonic, addr;
             if (split.length >= 2 && (match = split[1].match(/<@!([0-9]+)>/))) {
