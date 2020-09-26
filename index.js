@@ -12,7 +12,7 @@ const wordList = require('./wordlist.json');
 const config = require('./config.json');
 const flowConstants = require('./flow-constants.js');
 
-const {accessKeyId, secretAccessKey, /*githubUsername, githubApiKey,*/ githubPagesDomain, githubClientId, githubClientSecret, stripeClientId, stripeClientSecret} = config;
+const {accessKeyId, secretAccessKey, /*githubUsername, githubApiKey,*/ githubPagesDomain, githubClientId, githubClientSecret, stripeClientId, stripeClientSecret, discordApiToken} = config;
 const awsConfig = new AWS.Config({
   credentials: new AWS.Credentials({
     accessKeyId,
@@ -21,7 +21,6 @@ const awsConfig = new AWS.Config({
   region: 'us-west-1',
 });
 const ddb = new AWS.DynamoDB(awsConfig);
-const discordApiToken = 'NzU4OTU2NzAyNjY5MjA5NjEx.X22fgg.UxsWovr_n4l2sjx3rbZw7f5T-Rs';
 const guildId = '433492168825634816';
 const channelName = 'token-hax';
 const adminUserId = '284377201233887233';
