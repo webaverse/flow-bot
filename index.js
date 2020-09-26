@@ -550,12 +550,13 @@ const _runSpec = async (userKeys, spec) => {
             const entries = response2.encodedData.value.map(({value: {fields}}) => {
               const id = parseInt(fields.find(field => field.name === 'id').value.value, 10);
               const hash = fields.find(field => field.name === 'hash').value.value;
-              return {id, hash};
+              const filename = fields.find(field => field.name === 'filename').value.value;
+              return {id, hash, filename};
             });
 
             let s = '<@!' + userId + '>:\n'
             if (entries.length > 0) {
-              s += '```' + entries.map((entry, i) => `${entry.id}. https://storage.exokit.org/${entry.hash}`).join('\n') + '```';
+              s += '```' + entries.map((entry, i) => `${entry.id}. ${entry.filename} ${entry.hash}`).join('\n') + '```';
             } else {
               s += '```inventory empty```'
             }
