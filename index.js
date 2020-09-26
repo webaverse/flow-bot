@@ -635,7 +635,8 @@ const _runSpec = async (userKeys, spec) => {
                             limit: 100,
                             transaction: contractSource
                               .replace(/ARG0/g, hash)
-                              .replace(/ARG1/g, '0x' + addr),
+                              .replace(/ARG1/g, name)
+                              .replace(/ARG2/g, '0x' + addr),
                             wait: true,
                           }),
                         });
