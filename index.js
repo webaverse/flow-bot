@@ -449,7 +449,11 @@ const _runSpec = async (userKeys, spec) => {
 
             // console.log('got response', response2);
 
-            message.channel.send('<@!' + message.author.id + '>:\n```' + hashes.map(hash => 'https://storage.exokit.org/' + hash).join('\n') + '```');
+            let s = '<@!' + message.author.id + '>:\n'
+            if (hashes.length > 0) {
+              s += '```' + hashes.map((hash, i) => `${i}. https://storage.exokit.org/${hash}`).join('\n') + '```';
+            }
+            message.channel.send(s);
           } else {
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
