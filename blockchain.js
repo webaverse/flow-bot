@@ -23,7 +23,7 @@ flowConstants.load()
     host = o.host;
   });
 
-const makeMnemonic = () => bip39.entropyToMnemonic(crypto.randomBytes(32));
+// const makeMnemonic = () => bip39.entropyToMnemonic(crypto.randomBytes(32));
 const genKeys = async mnemonic => {
   const seed = await bip39.mnemonicToSeed(mnemonic);
   return flow.crypto.genKeys({
@@ -55,59 +55,11 @@ const _waitForTx = async txid => {
   }
 };
 
-const createAccount = async (userKeys) => {
-  for (;;) {
-    const acctResponse = await flow.sdk.send(await flow.sdk.pipe(await flow.sdk.build([
-      flow.sdk.getAccount(config.address),
-    ]), [
-      flow.sdk.resolve([
-        flow.sdk.resolveParams,
-      ]),
-    ]), { node: host });
-    console.log('create account', JSON.stringify(acctResponse, null, 2));
-    const seqNum = acctResponse.account.keys[0].sequenceNumber;
-
-    const signingFunction = flow.signingFunction.signingFunction(config.privateKey);
-
-    const response = await flow.sdk.send(await flow.sdk.pipe(await flow.sdk.build([
-      flow.sdk.authorizations([flow.sdk.authorization(config.address, signingFunction, 0)]),
-      flow.sdk.payer(flow.sdk.authorization(config.address, signingFunction, 0)),
-      flow.sdk.proposer(flow.sdk.authorization(config.address, signingFunction, 0, seqNum)),
-      flow.sdk.limit(100),
-      flow.sdk.transaction`
-        transaction(publicKeys: [String]) {
-          prepare(signer: AuthAccount) {
-            let acct = AuthAccount(payer: signer)
-            for key in publicKeys {
-              acct.addPublicKey(key.decodeHex())
-            }
-          }
-        }
-      `,
-      flow.sdk.args([
-        flow.sdk.arg([userKeys.flowKey], flow.types.Array(flow.types.String)),
-      ]),
-    ]), [
-      flow.sdk.resolve([
-        flow.sdk.resolveArguments,
-        flow.sdk.resolveParams,
-        flow.sdk.resolveAccounts,
-        flow.sdk.resolveRefBlockId({ node: flowConstants.host }),
-        flow.sdk.resolveSignatures,
-      ]),
-    ]), { node: host });
-
-    const response2 = await _waitForTx(response.transactionId);
-    console.log('got create account response', response2);
-    if (response2.transaction.statusCode === 0) {
-      const address = response2.transaction.events[0].payload.value.fields[0].value.value.slice(2);
-      // console.log('got response 6', userKeys.address);
-      return address;
-    } else {
-      console.log('retrying account creation');
-      continue;
-    }
-  }
+const createAccount = async () => {
+  const res = await fetch('https://accounts.exokit.org/', {
+    method: 'POST',
+  });
+  return await res.json();
 };
 
 const signingFunction2 = flow.signingFunction.signingFunction(config.privateKey);
@@ -244,7 +196,7 @@ function wordListToHex(words) {
 }
 
 module.exports = {
-  makeMnemonic,
+  // makeMnemonic,
   genKeys,
   createAccount,
   runTransaction,

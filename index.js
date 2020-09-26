@@ -33,13 +33,6 @@ const _runArray = async (userKeys, array) => {
   }
   return result;
 };
-const _createAccount = async () => {
-  const res = await fetch(accountsHost, {
-    method: 'POST',
-  });
-  const j = await res.json();
-  return j;
-};
 const _bakeContract = async (contractKeys, contractSource) => {
   const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
     method: 'POST',
@@ -151,12 +144,8 @@ const _runSpec = async (userKeys, spec) => {
           return {mnemonic, addr};
         };
         const _genKey = async (id = message.author.id) => {
-          let mnemonic = blockchain.makeMnemonic();
-
-          const userKeys = await blockchain.genKeys(mnemonic);
-          // console.log('generating 1', userKeys);
-          let addr = await blockchain.createAccount(userKeys);
-          // console.log('generating 2', addr);
+          let userKeys = await blockchain.createAccount();
+          let {mnemonic, address: addr} = userKeys;
 
           await ddb.putItem({
             TableName: tableName,
