@@ -596,6 +596,61 @@ const _runSpec = async (userKeys, spec) => {
 
             const key = mnemonic + ' ' + blockchain.hexToWordList(addr);
             message.author.send('Key: ```' + key + '```');
+          } else if (split[0] === 'get' && split.length >= 3 && !isNaN(parseInt(split[1], 10))) {
+            const id = parseInt(split[1], 10);
+            const key = split[2];
+
+            const contractSource = await blockchain.getContractSource('getNftMetadata.cdc');
+
+            const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
+              method: 'POST',
+              body: JSON.stringify({
+                /* address: addr,
+                mnemonic, */
+
+                limit: 100,
+                script: contractSource
+                  .replace(/ARG0/g, id)
+                  .replace(/ARG1/g, key),
+                wait: true,
+              }),
+            });
+            const response2 = await res.json();
+            const value = response2.encodedData.value && response2.encodedData.value.value;
+
+            message.channel.send('<@!' + message.author.id + '>: ```' + id + '/' + key + ': ' + value + '```');
+          } else if (split[0] === 'set' && split.length >= 4 && !isNaN(parseInt(split[1], 10))) {
+            const id = parseInt(split[1], 10);
+            const key = split[2];
+            const value = split[3];
+
+            let {mnemonic, addr} = await _getUser();
+            if (!mnemonic) {
+              const spec = await _genKey();
+              mnemonic = spec.mnemonic;
+              addr = spec.addr;
+            }
+            await _ensureBaked({addr, mnemonic});
+
+            const contractSource = await blockchain.getContractSource('setNftMetadata.cdc');
+
+            const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
+              method: 'POST',
+              body: JSON.stringify({
+                address: addr,
+                mnemonic,
+
+                limit: 100,
+                transaction: contractSource
+                  .replace(/ARG0/g, id)
+                  .replace(/ARG1/g, key)
+                  .replace(/ARG2/g, value),
+                wait: true,
+              }),
+            });
+            const response2 = await res.json();
+
+            message.channel.send('<@!' + message.author.id + '>: ```' + id + '/' + key + ' = ' + value + '```');
           } else {
             if (message.attachments.size > 0) {
               let {mnemonic, addr} = await _getUser();
