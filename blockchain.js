@@ -150,7 +150,7 @@ async function getContractSource(p) {
   if (!contractSource) {
     const res = await fetch('https://contracts.webaverse.com/flow/' + p);
     contractSource = await res.text();
-    contractSource = resolveContractSource(contractSource);
+    contractSource = await resolveContractSource(contractSource);
     if (/\.json$/.test(p)) {
       contractSource = eval(contractSource);
     }
@@ -159,7 +159,8 @@ async function getContractSource(p) {
   return contractSource;
 }
 
-function resolveContractSource(contractSource) {
+async function resolveContractSource(contractSource) {
+  const {FungibleToken, NonFungibleToken, ExampleToken, ExampleNFT, ExampleAccount} = await flowConstants.load();
   return contractSource
     .replace(/NONFUNGIBLETOKENADDRESS/g, NonFungibleToken)
     .replace(/FUNGIBLETOKENADDRESS/g, FungibleToken)
