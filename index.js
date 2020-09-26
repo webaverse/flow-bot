@@ -422,9 +422,17 @@ const _runSpec = async (userKeys, spec) => {
               }
             } */
           } else if (split[0] === 'inventory') {
-            let {mnemonic, addr} = await _getUser();
+            let userId, mnemonic, addr;
+            if (split.length >= 2 && (match = split[1].match(/<@!([0-9]+)>/))) {
+              userId = match[1];
+            } else {
+              userId = message.author.id;
+            }
+            const spec = await _getUser(userId);
+            mnemonic = spec.mnemonic;
+            addr = spec.addr;
             if (!mnemonic) {
-              const spec = await _genKey();
+              const spec = await _genKey(userId);
               mnemonic = spec.mnemonic;
               addr = spec.addr;
             }
@@ -435,8 +443,8 @@ const _runSpec = async (userKeys, spec) => {
             const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
               method: 'POST',
               body: JSON.stringify({
-                address: config.exampleNft.address,
-                mnemonic: config.exampleNft.mnemonic,
+                address: addr,
+                mnemonic,
 
                 limit: 100,
                 script: contractSource
@@ -445,13 +453,18 @@ const _runSpec = async (userKeys, spec) => {
               }),
             });
             const response2 = await res.json();
-            const hashes = response2.encodedData.value.map(({value: hash}) => hash);
 
-            // console.log('got response', response2);
+            const entries = response2.encodedData.value.map(({value: {fields}}) => {
+              const id = parseInt(fields.find(field => field.name === 'id').value.value, 10);
+              const hash = fields.find(field => field.name === 'hash').value.value;
+              return {id, hash};
+            });
 
-            let s = '<@!' + message.author.id + '>:\n'
-            if (hashes.length > 0) {
-              s += '```' + hashes.map((hash, i) => `${i}. https://storage.exokit.org/${hash}`).join('\n') + '```';
+            let s = '<@!' + userId + '>:\n'
+            if (entries.length > 0) {
+              s += '```' + entries.map((entry, i) => `${entry.id}. https://storage.exokit.org/${entry.hash}`).join('\n') + '```';
+            } else {
+              s += '```inventory empty```'
             }
             message.channel.send(s);
           } else {
