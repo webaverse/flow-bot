@@ -712,6 +712,13 @@ const _runSpec = async (userKeys, spec) => {
                     });
                     req.on('error', reject);
                     proxyRes.pipe(req);
+                    /* console.log('headers', proxyRes.headers);
+                    proxyRes.on('data', d => {
+                      console.log('proxy data', d.length);
+                    });
+                    proxyRes.on('end', () => {
+                      console.log('proxy end');
+                    }); */
                   });
                   proxyReq.on('error', reject);
                   proxyReq.end();
