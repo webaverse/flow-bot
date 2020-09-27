@@ -1,5 +1,4 @@
-const http = require('http');
-const https = require('https');
+const {http, https} = require('follow-redirects');
 const AWS = require('aws-sdk');
 /* const flow = {
   sdk: require('@onflow/sdk'),
@@ -667,10 +666,10 @@ const _runSpec = async (userKeys, spec) => {
               await _ensureBaked({addr, mnemonic});
 
               for (const [key, attachment] of message.attachments) {
-                const {name, proxyURL} = attachment;
+                const {name, url} = attachment;
 
                 await new Promise((accept, reject) => {
-                  const proxyReq = https.request(proxyURL, proxyRes => {
+                  const proxyReq = https.request(url, proxyRes => {
                     const req = https.request('https://storage.exokit.org/', {
                       method: 'POST',
                     }, res => {
