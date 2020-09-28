@@ -234,14 +234,11 @@ const _readStorageHashAsBuffer = async hash => {
             }
             await _ensureBaked({addr, mnemonic});
 
-            const contractSource = await blockchain.getContractSource('getUserData.cdc');
+            const contractSource = await blockchain.getContractSource('getUserStatus.cdc');
 
             const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
               method: 'POST',
               body: JSON.stringify({
-                /* address: addr,
-                mnemonic, */
-
                 limit: 100,
                 script: contractSource.replace(/ARG0/g, '0x' + addr),
                 wait: true,
