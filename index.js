@@ -597,6 +597,31 @@ const _readStorageHashAsBuffer = async hash => {
             const attachment = new Discord.MessageAttachment(buffer, filename);
 
             message.channel.send('<@!' + message.author.id + '>: ' + n + ' is this', attachment);
+          } else if (split[0] === 'preview' && split.length >= 2 && !isNaN(parseInt(split[1], 10))) {
+            const n = parseInt(split[1], 10);
+
+            const contractSource = await blockchain.getContractSource('getNft.cdc');
+
+            const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
+              method: 'POST',
+              body: JSON.stringify({
+                limit: 100,
+                script: contractSource
+                  .replace(/ARG0/g, n),
+                wait: true,
+              }),
+            });
+            const response2 = await res.json();
+            const [hash, filename] = response2.encodedData.value.map(value => value.value && value.value.value);
+            const match = filename.match(/^(.+)\.([^\.]+)$/);
+
+            if (match) {
+              const basename = match[1];
+              const ext = match[2];
+              message.channel.send('<@!' + message.author.id + '>: ' + n + ': https://preview.exokit.org/' + hash + '.' + ext + '/' + basename + '.png');
+            } else {
+              message.channel.send('<@!' + message.author.id + '>: ' + n + ': no preivew available');
+            }
           } else if (split[0] === 'key') {
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
