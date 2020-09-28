@@ -655,7 +655,7 @@ const _runSpec = async (userKeys, spec) => {
             if (!response2.transaction.errorMessage) {
               message.channel.send('<@!' + message.author.id + '>: ```' + id + '/' + key + ' = ' + value + '```');
             } else {
-              message.channel.send('<@!' + message.author.id + '>: could not mint: ' + response2.transaction.errorMessage);
+              message.channel.send('<@!' + message.author.id + '>: could not set: ' + response2.transaction.errorMessage);
             }
           } else {
             if (message.attachments.size > 0) {
