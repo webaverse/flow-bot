@@ -117,6 +117,17 @@ const _runSpec = async (userKeys, spec) => {
   // console.log('bake contract 2', response2);
   return response2;
 };
+const _readStorageHashAsBuffer = async hash => {
+  const bs = [];
+  const req = await fetch('https://storage.exokit.org/' + hash);
+  if (req.ok) {
+    const arrayBuffer = await req.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    return buffer;
+  } else {
+    return null;
+  }
+};
 
 (async () => {
   const {FungibleToken, NonFungibleToken, ExampleToken, ExampleNFT, ExampleAccount, host} = await flowConstants.load();
@@ -562,10 +573,10 @@ const _runSpec = async (userKeys, spec) => {
               s += '```inventory empty```'
             }
             message.channel.send(s);
-          } else if (split[0] === 'show' && split.length >= 2 && !isNaN(parseInt(split[1], 10))) {
+          } else if (split[0] === 'upload' && split.length >= 2 && !isNaN(parseInt(split[1], 10))) {
             const n = parseInt(split[1], 10);
 
-            const contractSource = await blockchain.getContractSource('getHash.cdc');
+            const contractSource = await blockchain.getContractSource('getNft.cdc');
 
             const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
               method: 'POST',
@@ -580,13 +591,12 @@ const _runSpec = async (userKeys, spec) => {
               }),
             });
             const response2 = await res.json();
-            const hash = response2.encodedData.value && response2.encodedData.value.value;
+            const [hash, filename] = response2.encodedData.value.map(value => value.value && value.value.value);
 
-            message.channel.send('', {
-              files: [
-                `https://storage.exokit.org/${hash}`
-              ],
-            });
+            const buffer = await _readStorageHashAsBuffer(hash);
+            const attachment = new Discord.MessageAttachment(buffer, filename);
+
+            message.channel.send('<@!' + message.author.id + '>: ' + n + ' is this', attachment);
           } else if (split[0] === 'key') {
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
