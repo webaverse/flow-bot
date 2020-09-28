@@ -382,6 +382,7 @@ const _readStorageHashAsBuffer = async hash => {
               mnemonic = spec.mnemonic;
               addr = spec.addr;
             }
+            await _ensureBaked({addr, mnemonic});
 
             message.channel.send('<@!' + message.author.id + '>\'s address: ```' + addr + '```');
           } else if (split[0] === 'flowkey') {
