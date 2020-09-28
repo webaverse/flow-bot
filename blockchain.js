@@ -34,7 +34,7 @@ const genKeys = async mnemonic => {
 function uint8Array2hex(uint8Array) {
   return Array.prototype.map.call(uint8Array, x => ('00' + x.toString(16)).slice(-2)).join('');
 }
-const _isSealed = tx => tx.status >= 4;
+/* const _isSealed = tx => tx.status >= 4;
 const _waitForTx = async txid => {
   for (;;) {
     const response2 = await flow.sdk.send(await flow.sdk.pipe(await flow.sdk.build([
@@ -44,7 +44,6 @@ const _waitForTx = async txid => {
         flow.sdk.resolveParams,
       ]),
     ]), { node: host });
-    // console.log('got response 2', response2);
     if (_isSealed(response2.transaction)) {
       return response2;
     } else {
@@ -53,7 +52,7 @@ const _waitForTx = async txid => {
       });
     }
   }
-};
+}; */
 
 const createAccount = async () => {
   const res = await fetch('https://accounts.exokit.org/', {
@@ -70,7 +69,7 @@ const _getType = type => {
     return flow.types[type];
   }
 };
-const runTransaction = async spec => {
+/* const runTransaction = async spec => {
   let {
     address,
     privateKey,
@@ -137,12 +136,10 @@ const runTransaction = async spec => {
     if (wait) {
       response = await _waitForTx(response.transactionId);
     }
-  } /* else if (script) {
-    response = response.encodedData.value;
-  } */
+  }
   
   return response;
-};
+}; */
 
 const contractSourceCache = {};
 async function getContractSource(p) {
@@ -200,7 +197,7 @@ module.exports = {
   // makeMnemonic,
   genKeys,
   createAccount,
-  runTransaction,
+  // runTransaction,
   getContractSource,
   resolveContractSource,
   hexToWordList,
