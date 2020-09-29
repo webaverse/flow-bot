@@ -54,9 +54,12 @@ const _waitForTx = async txid => {
   }
 }; */
 
-const createAccount = async () => {
+const createAccount = async ({bake = false} = {}) => {
   const res = await fetch('https://accounts.exokit.org/', {
     method: 'POST',
+    body: JSON.stringify({
+      bake,
+    }),
   });
   return await res.json();
 };
@@ -148,9 +151,6 @@ async function getContractSource(p) {
     const res = await fetch('https://contracts.webaverse.com/flow/' + p);
     contractSource = await res.text();
     contractSource = await resolveContractSource(contractSource);
-    if (/\.json$/.test(p)) {
-      contractSource = eval(contractSource);
-    }
     contractSourceCache[p] = contractSource;
   }
   return contractSource;

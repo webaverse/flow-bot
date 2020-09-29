@@ -156,7 +156,9 @@ const _readStorageHashAsBuffer = async hash => {
           return {mnemonic, addr};
         };
         const _genKey = async (id = message.author.id) => {
-          let userKeys = await blockchain.createAccount();
+          let userKeys = await blockchain.createAccount({
+            bake: true,
+          });
           let {mnemonic, address: addr} = userKeys;
 
           await ddb.putItem({
@@ -169,7 +171,7 @@ const _readStorageHashAsBuffer = async hash => {
           }).promise();
           return {mnemonic, addr};
         };
-        const _ensureBaked = async ({addr, mnemonic}) => {
+        /* const _ensureBaked = async ({addr, mnemonic}) => {
           const contractSource = await blockchain.getContractSource('isUserAccountBaked.cdc');
 
           const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
@@ -199,7 +201,7 @@ const _readStorageHashAsBuffer = async hash => {
               console.log('baked account result', response);
             }
           }
-        };
+        }; */
 
         if (message.channel.type === 'text' && message.channel.name === channelName) {
           // console.log('got message', message);
@@ -232,7 +234,7 @@ const _readStorageHashAsBuffer = async hash => {
               mnemonic = spec.mnemonic;
               addr = spec.addr;
             }
-            await _ensureBaked({addr, mnemonic});
+            // await _ensureBaked({addr, mnemonic});
 
             const contractSource = await blockchain.getContractSource('getUserStatus.cdc');
 
@@ -255,7 +257,7 @@ const _readStorageHashAsBuffer = async hash => {
               mnemonic = spec.mnemonic;
               addr = spec.addr;
             }
-            await _ensureBaked({addr, mnemonic});
+            // await _ensureBaked({addr, mnemonic});
 
             const name = split[1] || '';
             const contractSource = await blockchain.getContractSource('setUserData.cdc');
@@ -283,7 +285,7 @@ const _readStorageHashAsBuffer = async hash => {
               mnemonic = spec.mnemonic;
               addr = spec.addr;
             }
-            await _ensureBaked({addr, mnemonic});
+            // await _ensureBaked({addr, mnemonic});
 
             const avatar = split[1] || '';
             const contractSource = await blockchain.getContractSource('setUserData.cdc');
@@ -314,7 +316,7 @@ const _readStorageHashAsBuffer = async hash => {
                 mnemonic = spec.mnemonic;
                 addr = spec.addr;
               }
-              await _ensureBaked({addr, mnemonic});
+              // await _ensureBaked({addr, mnemonic});
 
               {
                 const contractSource = await blockchain.getContractSource('getBalance.cdc');
@@ -342,7 +344,7 @@ const _readStorageHashAsBuffer = async hash => {
                 mnemonic = spec.mnemonic;
                 addr = spec.addr;
               }
-              await _ensureBaked({addr, mnemonic});
+              // await _ensureBaked({addr, mnemonic});
 
               {
                 const contractSource = await blockchain.getContractSource('getBalance.cdc');
@@ -382,7 +384,7 @@ const _readStorageHashAsBuffer = async hash => {
               mnemonic = spec.mnemonic;
               addr = spec.addr;
             }
-            await _ensureBaked({addr, mnemonic});
+            // await _ensureBaked({addr, mnemonic});
 
             message.channel.send('<@!' + message.author.id + '>\'s address: ```' + addr + '```');
           } else if (split[0] === 'flowkey') {
@@ -405,7 +407,7 @@ const _readStorageHashAsBuffer = async hash => {
               mnemonic = spec.mnemonic;
               addr = spec.addr;
             }
-            await _ensureBaked({addr, mnemonic});
+            // await _ensureBaked({addr, mnemonic});
 
             {
               const contractSource = await blockchain.getContractSource('mintToken.cdc');
@@ -442,8 +444,7 @@ const _readStorageHashAsBuffer = async hash => {
                 mnemonic = spec.mnemonic;
                 addr = spec.addr;
               }
-              await _ensureBaked({addr, mnemonic});
-              // console.log('baked 1', user.id);
+              // await _ensureBaked({addr, mnemonic});
 
               let {mnemonic: mnemonic2, addr: addr2} = await _getUser(user.id);
               if (!mnemonic2) {
@@ -451,8 +452,7 @@ const _readStorageHashAsBuffer = async hash => {
                 mnemonic2 = spec.mnemonic;
                 addr2 = spec.addr;
               }
-              await _ensureBaked({addr: addr2, mnemonic: mnemonic2});
-              // console.log('baked 2', user.id);
+              // await _ensureBaked({addr: addr2, mnemonic: mnemonic2});
 
               const contractSource = await blockchain.getContractSource('transferToken.cdc');
               const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
@@ -490,7 +490,7 @@ const _readStorageHashAsBuffer = async hash => {
                 mnemonic = spec.mnemonic;
                 addr = spec.addr;
               }
-              await _ensureBaked({addr, mnemonic});
+              // await _ensureBaked({addr, mnemonic});
 
               let {mnemonic: mnemonic2, addr: addr2} = await _getUser(user.id);
               if (!mnemonic2) {
@@ -498,7 +498,7 @@ const _readStorageHashAsBuffer = async hash => {
                 mnemonic2 = spec.mnemonic;
                 addr2 = spec.addr;
               }
-              await _ensureBaked({addr: addr2, mnemonic: mnemonic2});
+              // await _ensureBaked({addr: addr2, mnemonic: mnemonic2});
 
               const contractSource = await blockchain.getContractSource('transferNft.cdc');
               const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
@@ -539,7 +539,7 @@ const _readStorageHashAsBuffer = async hash => {
               mnemonic = spec.mnemonic;
               addr = spec.addr;
             }
-            await _ensureBaked({addr, mnemonic});
+            // await _ensureBaked({addr, mnemonic});
 
             const contractSource = await blockchain.getContractSource('getHashes.cdc');
 
@@ -627,7 +627,7 @@ const _readStorageHashAsBuffer = async hash => {
               mnemonic = spec.mnemonic;
               addr = spec.addr;
             }
-            await _ensureBaked({addr, mnemonic});
+            // await _ensureBaked({addr, mnemonic});
 
             const key = mnemonic + ' ' + blockchain.hexToWordList(addr);
             message.author.send('Key: ```' + key + '```');
@@ -665,7 +665,7 @@ const _readStorageHashAsBuffer = async hash => {
               mnemonic = spec.mnemonic;
               addr = spec.addr;
             }
-            await _ensureBaked({addr, mnemonic});
+            // await _ensureBaked({addr, mnemonic});
 
             const contractSource = await blockchain.getContractSource('setNftMetadata.cdc');
 
@@ -698,7 +698,7 @@ const _readStorageHashAsBuffer = async hash => {
                 mnemonic = spec.mnemonic;
                 addr = spec.addr;
               }
-              await _ensureBaked({addr, mnemonic});
+              // await _ensureBaked({addr, mnemonic});
 
               for (const [key, attachment] of message.attachments) {
                 const {name, url} = attachment;
@@ -793,7 +793,7 @@ const _readStorageHashAsBuffer = async hash => {
                 mnemonic = spec.mnemonic;
                 addr = spec.addr;
               }
-              await _ensureBaked({addr, mnemonic});
+              // await _ensureBaked({addr, mnemonic});
 
               const key = mnemonic + ' ' + blockchain.hexToWordList(addr);
               message.author.send('Key: ```' + key + '```');
