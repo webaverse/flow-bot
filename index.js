@@ -432,12 +432,54 @@ const _readStorageHashAsBuffer = async hash => {
                 message.channel.send('<@!' + message.author.id + '>: could not mint: ' + response2.transaction.errorMessage);
               }
             }
-          } else if (split[0] === 'send' && split.length >=3 && (match = split[1].match(/<@!([0-9]+)>/)) && !isNaN(parseFloat(split[2]))) {
-            const userId = match[1];
-            const member = message.channel.guild.members.cache.get(userId);
-            const user = member ? member.user : null;
+          } else if (split[0] === 'send' && split.length >= 3 && !isNaN(parseFloat(split[2]))) {
             const amount = parseFloat(split[2]);
-            if (user) {
+            if (match = split[1].match(/<@!([0-9]+)>/)) {
+              const userId = match[1];
+              const member = message.channel.guild.members.cache.get(userId);
+              const user = member ? member.user : null;
+              if (user) {
+                let {mnemonic, addr} = await _getUser();
+                if (!mnemonic) {
+                  const spec = await _genKey();
+                  mnemonic = spec.mnemonic;
+                  addr = spec.addr;
+                }
+                // await _ensureBaked({addr, mnemonic});
+
+                let {mnemonic: mnemonic2, addr: addr2} = await _getUser(user.id);
+                if (!mnemonic2) {
+                  const spec = await _genKey(userId);
+                  mnemonic2 = spec.mnemonic;
+                  addr2 = spec.addr;
+                }
+                // await _ensureBaked({addr: addr2, mnemonic: mnemonic2});
+
+                const contractSource = await blockchain.getContractSource('transferToken.cdc');
+                const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    address: addr,
+                    mnemonic,
+
+                    limit: 100,
+                    transaction: contractSource
+                      .replace(/ARG0/g, amount.toFixed(8))
+                      .replace(/ARG1/g, '0x' + addr2),
+                    wait: true,
+                  }),
+                });
+                const response2 = await res.json();
+
+                if (!response2.transaction.errorMessage) {
+                  message.channel.send('<@!' + message.author.id + '>: greased ' + amount + ' to <@!' + userId + '>');
+                } else {
+                  message.channel.send('<@!' + message.author.id + '>: could not send: ' + response2.transaction.errorMessage);
+                }
+              } else {
+                message.channcel.send('unknown user');
+              }
+            } else if (match = split[1].match(/0x([0-9a-f]+)/i)) {
               let {mnemonic, addr} = await _getUser();
               if (!mnemonic) {
                 const spec = await _genKey();
@@ -446,13 +488,7 @@ const _readStorageHashAsBuffer = async hash => {
               }
               // await _ensureBaked({addr, mnemonic});
 
-              let {mnemonic: mnemonic2, addr: addr2} = await _getUser(user.id);
-              if (!mnemonic2) {
-                const spec = await _genKey(userId);
-                mnemonic2 = spec.mnemonic;
-                addr2 = spec.addr;
-              }
-              // await _ensureBaked({addr: addr2, mnemonic: mnemonic2});
+              const addr2 = match[1];
 
               const contractSource = await blockchain.getContractSource('transferToken.cdc');
               const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
@@ -471,7 +507,7 @@ const _readStorageHashAsBuffer = async hash => {
               const response2 = await res.json();
 
               if (!response2.transaction.errorMessage) {
-                message.channel.send('<@!' + message.author.id + '>: greased ' + amount + ' to <@!' + userId + '>');
+                message.channel.send('<@!' + message.author.id + '>: greased ' + amount + ' to 0x' + addr2);
               } else {
                 message.channel.send('<@!' + message.author.id + '>: could not send: ' + response2.transaction.errorMessage);
               }
