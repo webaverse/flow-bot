@@ -445,7 +445,6 @@ const _readStorageHashAsBuffer = async hash => {
                   mnemonic = spec.mnemonic;
                   addr = spec.addr;
                 }
-                // await _ensureBaked({addr, mnemonic});
 
                 let {mnemonic: mnemonic2, addr: addr2} = await _getUser(user.id);
                 if (!mnemonic2) {
@@ -453,7 +452,6 @@ const _readStorageHashAsBuffer = async hash => {
                   mnemonic2 = spec.mnemonic;
                   addr2 = spec.addr;
                 }
-                // await _ensureBaked({addr: addr2, mnemonic: mnemonic2});
 
                 const contractSource = await blockchain.getContractSource('transferToken.cdc');
                 const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
@@ -486,7 +484,6 @@ const _readStorageHashAsBuffer = async hash => {
                 mnemonic = spec.mnemonic;
                 addr = spec.addr;
               }
-              // await _ensureBaked({addr, mnemonic});
 
               const addr2 = match[1];
 
@@ -514,48 +511,88 @@ const _readStorageHashAsBuffer = async hash => {
             } else {
               message.channcel.send('unknown user');
             }
-          } else if (split[0] === 'transfer' && split.length >=3 && (match = split[1].match(/<@!([0-9]+)>/)) && !isNaN(parseInt(split[2], 10))) {
-            const userId = match[1];
-            const member = message.channel.guild.members.cache.get(userId);
-            const user = member ? member.user : null;
+          } else if (split[0] === 'transfer' && split.length >=3 && !isNaN(parseInt(split[2], 10))) {
             const id = parseInt(split[2], 10);
-            if (user) {
-              let {mnemonic, addr} = await _getUser();
-              if (!mnemonic) {
-                const spec = await _genKey();
-                mnemonic = spec.mnemonic;
-                addr = spec.addr;
-              }
-              // await _ensureBaked({addr, mnemonic});
+            if (match = split[1].match(/<@!([0-9]+)>/)) {
+              const userId = match[1];
+              const member = message.channel.guild.members.cache.get(userId);
+              const user = member ? member.user : null;
+              if (user) {
+                let {mnemonic, addr} = await _getUser();
+                if (!mnemonic) {
+                  const spec = await _genKey();
+                  mnemonic = spec.mnemonic;
+                  addr = spec.addr;
+                }
 
-              let {mnemonic: mnemonic2, addr: addr2} = await _getUser(user.id);
-              if (!mnemonic2) {
-                const spec = await _genKey(userId);
-                mnemonic2 = spec.mnemonic;
-                addr2 = spec.addr;
-              }
-              // await _ensureBaked({addr: addr2, mnemonic: mnemonic2});
+                let {mnemonic: mnemonic2, addr: addr2} = await _getUser(user.id);
+                if (!mnemonic2) {
+                  const spec = await _genKey(userId);
+                  mnemonic2 = spec.mnemonic;
+                  addr2 = spec.addr;
+                }
 
-              const contractSource = await blockchain.getContractSource('transferNft.cdc');
-              const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
-                method: 'POST',
-                body: JSON.stringify({
-                  address: addr,
-                  mnemonic,
+                const contractSource = await blockchain.getContractSource('transferNft.cdc');
+                const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    address: addr,
+                    mnemonic,
 
-                  limit: 100,
-                  transaction: contractSource
-                    .replace(/ARG0/g, id)
-                    .replace(/ARG1/g, '0x' + addr2),
-                  wait: true,
-                }),
-              });
-              const response2 = await res.json();
+                    limit: 100,
+                    transaction: contractSource
+                      .replace(/ARG0/g, id)
+                      .replace(/ARG1/g, '0x' + addr2),
+                    wait: true,
+                  }),
+                });
+                const response2 = await res.json();
 
-              if (!response2.transaction.errorMessage) {
-                message.channel.send('<@!' + message.author.id + '>: transferred ' + id + ' to <@!' + userId + '>');
+                if (!response2.transaction.errorMessage) {
+                  message.channel.send('<@!' + message.author.id + '>: transferred ' + id + ' to <@!' + userId + '>');
+                } else {
+                  message.channel.send('<@!' + message.author.id + '>: could not transfer: ' + response2.transaction.errorMessage);
+                }
               } else {
-                message.channel.send('<@!' + message.author.id + '>: could not transfer: ' + response2.transaction.errorMessage);
+                message.channcel.send('unknown user');
+              }
+            } else if (match = split[1].match(/0x([0-9]+)/)) {
+              const userId = match[1];
+              const member = message.channel.guild.members.cache.get(userId);
+              const user = member ? member.user : null;
+              if (user) {
+                let {mnemonic, addr} = await _getUser();
+                if (!mnemonic) {
+                  const spec = await _genKey();
+                  mnemonic = spec.mnemonic;
+                  addr = spec.addr;
+                }
+
+                const addr2 = match[1];
+
+                const contractSource = await blockchain.getContractSource('transferNft.cdc');
+                const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    address: addr,
+                    mnemonic,
+
+                    limit: 100,
+                    transaction: contractSource
+                      .replace(/ARG0/g, id)
+                      .replace(/ARG1/g, '0x' + addr2),
+                    wait: true,
+                  }),
+                });
+                const response2 = await res.json();
+
+                if (!response2.transaction.errorMessage) {
+                  message.channel.send('<@!' + message.author.id + '>: transferred ' + id + ' to 0x' + addr2);
+                } else {
+                  message.channel.send('<@!' + message.author.id + '>: could not transfer: ' + response2.transaction.errorMessage);
+                }
+              } else {
+                message.channcel.send('unknown user');
               }
             } else {
               message.channcel.send('unknown user');
