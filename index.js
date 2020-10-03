@@ -400,40 +400,29 @@ Help
                 message.channel.send('<@!' + message.author.id + '> is ' + balance + ' grease');
               }
             }
-          } else if (split[0] === prefix + 'who' && split.length >= 2 && !isNaN(parseInt(split[1], 10))) {
-            // XXX
-          } else if (split[0] === prefix + 'publickey') {
-            let {mnemonic, addr} = await _getUser();
-            if (!mnemonic) {
-              const spec = await _genKey();
-              mnemonic = spec.mnemonic;
-              addr = spec.addr;
-            }
-            const userKeys = await blockchain.genKeys(mnemonic);
-            const {publicKey} = userKeys;
-
-            message.channel.send('<@!' + message.author.id + '>\'s public key: ```' + publicKey + '```');
           } else if (split[0] === prefix + 'address') {
-            let {mnemonic, addr} = await _getUser();
-            if (!mnemonic) {
-              const spec = await _genKey();
-              mnemonic = spec.mnemonic;
-              addr = spec.addr;
+            let user;
+            if (split[1] && (match = split[1].match(/<@!([0-9]+)>/))) {
+              const userId = match[1];
+              const member = message.channel.guild.members.cache.get(userId);
+              user = member ? member.user : null;
+            } else {
+              user = message.author;
             }
-            // await _ensureBaked({addr, mnemonic});
+            if (user) {
+              let addr;
+              const spec = await _getUser(user.id);
+              if (spec.addr) {
+                addr = spec.addr;
+              } else {
+                const spec = await _genKey();
+                addr = spec.addr;
+              }
 
-            message.channel.send('<@!' + message.author.id + '>\'s address: ```' + addr + '```');
-          } else if (split[0] === prefix + 'flowkey') {
-            let {mnemonic, addr} = await _getUser();
-            if (!mnemonic) {
-              const spec = await _genKey();
-              mnemonic = spec.mnemonic;
-              addr = spec.addr;
+              message.channel.send('<@!' + user.id + '>\'s address: ```' + addr + '```');
+            } else {
+              message.channel.send('no such user');
             }
-            const userKeys = await blockchain.genKeys(mnemonic);
-            const {flowKey} = userKeys;
-
-            message.channel.send('<@!' + message.author.id + '>\'s flow key: ```' + flowKey + '```');
           } else if (split[0] === prefix + 'mint' && split.length >= 2 && !isNaN(parseFloat(split[1])) && message.author.id === adminUserId) {
             const amount = parseFloat(split[1]);
 
