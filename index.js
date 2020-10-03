@@ -23,7 +23,7 @@ const awsConfig = new AWS.Config({
 });
 const ddb = new AWS.DynamoDB(awsConfig);
 const guildId = '433492168825634816';
-const channelName = 'token-hax';
+// const channelName = 'token-hax';
 const adminUserId = '284377201233887233';
 const tableName = 'users';
 
@@ -203,7 +203,7 @@ const _readStorageHashAsBuffer = async hash => {
           }
         }; */
 
-        if (message.channel.type === 'text' && message.channel.name === channelName) {
+        if (message.channel.type === 'text') {
           // console.log('got message', message);
 
           if (/grease/.test(message.content)) {
