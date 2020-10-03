@@ -26,6 +26,7 @@ const guildId = '433492168825634816';
 // const channelName = 'token-hax';
 const adminUserId = '284377201233887233';
 const tableName = 'users';
+const prefix = '.';
 
 const _runArray = async (userKeys, array) => {
   const result = Array(array.length);
@@ -211,7 +212,27 @@ const _readStorageHashAsBuffer = async hash => {
           }
           const split = message.content.split(/\s+/);
           let match;
-          if (split[0] === 'dump' && split.length >= 4) {
+          if (split[0] === prefix + 'help') {
+            message.channel.send(`\`\`\`\
+.status - show your account details
+.balance - show your FT balance, or that of a user/address
+.inventory [@user|0xaddr]? - show your NFTs, or that of a user/address
+.send [@user|0xaddr] [amount] - send [amount] FT to user/address
+.transfer [@user|0xaddr] [id] - send [id] NFT to user/address
+.preview [id] - show preview of NFT [id] in channel
+.upload [id] - upload NFT [id] to channel
+.address - print your address
+.publickey - print your public key
+.flowkey - print your Flow key, which some APIs use
+.key - get your private key in a DM
+.name [newname] - set your name to [name] on the chain
+.avatar [id] - set your avatar to [id] on the chain
+.get [id] [key] - get metadata key [key] for NFT [id]
+.set [id] [key] [value] - set metadata key [key] to [value] for NFT [id]
+.mint [count] - mint [count] FT to yourself (admin only)
+.help - show this info
+\`\`\``);
+          } else if (split[0] === prefix + 'dump' && split.length >= 4) {
             // console.log('got', split[1]);
             const match = split[1].match(/<@!([0-9]+)>/);
             if (match) {
@@ -219,7 +240,7 @@ const _readStorageHashAsBuffer = async hash => {
               const member = client.guilds.cache.get(guildId).members.cache.get(match[1]);
               // console.log('got split 2', member.user.send('woot'));
             }
-          } else if (split[0] === 'status') {
+          } else if (split[0] === prefix + 'status') {
             let userId, mnemonic, addr;
             if (split.length >= 2 && (match = split[1].match(/<@!([0-9]+)>/))) {
               userId = match[1];
@@ -250,7 +271,7 @@ const _readStorageHashAsBuffer = async hash => {
             const [name, avatar] = response2.encodedData.value.map(value => value.value && value.value.value);
 
             message.channel.send('<@!' + message.author.id + '>: ' + `\`\`\`Name: ${name}\nAvatar: ${avatar}\n\`\`\``);
-          } else if (split[0] === 'name') {
+          } else if (split[0] === prefix + 'name') {
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
               const spec = await _genKey();
@@ -278,7 +299,7 @@ const _readStorageHashAsBuffer = async hash => {
             const response2 = await res.json();
 
             message.channel.send('<@!' + message.author.id + '>: set name to ' + JSON.stringify(name));
-          } else if (split[0] === 'avatar') {
+          } else if (split[0] === prefix + 'avatar') {
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
               const spec = await _genKey();
@@ -306,7 +327,7 @@ const _readStorageHashAsBuffer = async hash => {
             const response2 = await res.json();
 
             message.channel.send('<@!' + message.author.id + '>: set avatar to ' + JSON.stringify(avatar));
-          } else if (split[0] === 'balance') {
+          } else if (split[0] === prefix + 'balance') {
             let match;
             if (split.length >= 2 && (match = split[1].match(/<@!([0-9]+)>/))) {
               const userId = match[1];
@@ -366,7 +387,9 @@ const _readStorageHashAsBuffer = async hash => {
                 message.channel.send('<@!' + message.author.id + '> is ' + balance + ' grease');
               }
             }
-          } else if (split[0] === 'publickey') {
+          } else if (split[0] === prefix + 'who' && split.length >= 2 && !isNaN(parseInt(split[1], 10))) {
+            // XXX
+          } else if (split[0] === prefix + 'publickey') {
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
               const spec = await _genKey();
@@ -377,7 +400,7 @@ const _readStorageHashAsBuffer = async hash => {
             const {publicKey} = userKeys;
 
             message.channel.send('<@!' + message.author.id + '>\'s public key: ```' + publicKey + '```');
-          } else if (split[0] === 'address') {
+          } else if (split[0] === prefix + 'address') {
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
               const spec = await _genKey();
@@ -387,7 +410,7 @@ const _readStorageHashAsBuffer = async hash => {
             // await _ensureBaked({addr, mnemonic});
 
             message.channel.send('<@!' + message.author.id + '>\'s address: ```' + addr + '```');
-          } else if (split[0] === 'flowkey') {
+          } else if (split[0] === prefix + 'flowkey') {
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
               const spec = await _genKey();
@@ -398,7 +421,7 @@ const _readStorageHashAsBuffer = async hash => {
             const {flowKey} = userKeys;
 
             message.channel.send('<@!' + message.author.id + '>\'s flow key: ```' + flowKey + '```');
-          } else if (split[0] === 'mint' && split.length >= 2 && !isNaN(parseFloat(split[1])) && message.author.id === adminUserId) {
+          } else if (split[0] === prefix + 'mint' && split.length >= 2 && !isNaN(parseFloat(split[1])) && message.author.id === adminUserId) {
             const amount = parseFloat(split[1]);
 
             let {mnemonic, addr} = await _getUser();
@@ -432,7 +455,7 @@ const _readStorageHashAsBuffer = async hash => {
                 message.channel.send('<@!' + message.author.id + '>: could not mint: ' + response2.transaction.errorMessage);
               }
             }
-          } else if (split[0] === 'send' && split.length >= 3 && !isNaN(parseFloat(split[2]))) {
+          } else if (split[0] === prefix + 'send' && split.length >= 3 && !isNaN(parseFloat(split[2]))) {
             const amount = parseFloat(split[2]);
             if (match = split[1].match(/<@!([0-9]+)>/)) {
               const userId = match[1];
@@ -511,7 +534,7 @@ const _readStorageHashAsBuffer = async hash => {
             } else {
               message.channcel.send('unknown user');
             }
-          } else if (split[0] === 'transfer' && split.length >=3 && !isNaN(parseInt(split[2], 10))) {
+          } else if (split[0] === prefix + 'transfer' && split.length >=3 && !isNaN(parseInt(split[2], 10))) {
             const id = parseInt(split[2], 10);
             if (match = split[1].match(/<@!([0-9]+)>/)) {
               const userId = match[1];
@@ -590,7 +613,7 @@ const _readStorageHashAsBuffer = async hash => {
             } else {
               message.channel.send('unknown user');
             }
-          } else if (split[0] === 'inventory') {
+          } else if (split[0] === prefix + 'inventory') {
             let addr, userLabel;
             const _loadFromUserId = async userId => {
               const spec = await _getUser(userId);
@@ -646,7 +669,7 @@ const _readStorageHashAsBuffer = async hash => {
               s += '```inventory empty```'
             }
             message.channel.send(s);
-          } else if (split[0] === 'upload' && split.length >= 2 && !isNaN(parseInt(split[1], 10))) {
+          } else if (split[0] === prefix + 'upload' && split.length >= 2 && !isNaN(parseInt(split[1], 10))) {
             const n = parseInt(split[1], 10);
 
             const contractSource = await blockchain.getContractSource('getNft.cdc');
@@ -670,7 +693,7 @@ const _readStorageHashAsBuffer = async hash => {
             const attachment = new Discord.MessageAttachment(buffer, filename);
 
             message.channel.send('<@!' + message.author.id + '>: ' + n + ' is this', attachment);
-          } else if (split[0] === 'preview' && split.length >= 2 && !isNaN(parseInt(split[1], 10))) {
+          } else if (split[0] === prefix + 'preview' && split.length >= 2 && !isNaN(parseInt(split[1], 10))) {
             const n = parseInt(split[1], 10);
 
             const contractSource = await blockchain.getContractSource('getNft.cdc');
@@ -695,7 +718,7 @@ const _readStorageHashAsBuffer = async hash => {
             } else {
               message.channel.send('<@!' + message.author.id + '>: ' + n + ': no preivew available');
             }
-          } else if (split[0] === 'key') {
+          } else if (split[0] === prefix + 'key') {
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
               const spec = await _genKey();
@@ -706,7 +729,7 @@ const _readStorageHashAsBuffer = async hash => {
 
             const key = mnemonic + ' ' + blockchain.hexToWordList(addr);
             message.author.send('Key: ```' + key + '```');
-          } else if (split[0] === 'get' && split.length >= 3 && !isNaN(parseInt(split[1], 10))) {
+          } else if (split[0] === prefix + 'get' && split.length >= 3 && !isNaN(parseInt(split[1], 10))) {
             const id = parseInt(split[1], 10);
             const key = split[2];
 
@@ -729,7 +752,7 @@ const _readStorageHashAsBuffer = async hash => {
             const value = response2.encodedData.value && response2.encodedData.value.value;
 
             message.channel.send('<@!' + message.author.id + '>: ```' + id + '/' + key + ': ' + value + '```');
-          } else if (split[0] === 'set' && split.length >= 4 && !isNaN(parseInt(split[1], 10))) {
+          } else if (split[0] === prefix + 'set' && split.length >= 4 && !isNaN(parseInt(split[1], 10))) {
             const id = parseInt(split[1], 10);
             const key = split[2];
             const value = split[3];
@@ -765,7 +788,7 @@ const _readStorageHashAsBuffer = async hash => {
             } else {
               message.channel.send('<@!' + message.author.id + '>: could not set: ' + response2.transaction.errorMessage);
             }
-          } else if (split[0] === 'createworld') {
+          } else if (split[0] === prefix + 'createworld') {
             const res = await fetch('https://worlds.exokit.org/create', {
               method: 'POST',
             });
@@ -776,7 +799,7 @@ const _readStorageHashAsBuffer = async hash => {
             } else {
               message.channel.send('<@!' + message.author.id + '>: failed to create world: ' + res.statusCode);
             }
-          } else if (split[0] === 'destroyworld' && split.length >= 2 && split[1]) {
+          } else if (split[0] === prefix + 'destroyworld' && split.length >= 2 && split[1]) {
             const id = split[1];
             const res = await fetch('https://worlds.exokit.org/' + id, {
               method: 'DELETE',
@@ -862,7 +885,7 @@ const _readStorageHashAsBuffer = async hash => {
           let {mnemonic, addr} = await _getUser();
 
           const split = message.content.split(/\s+/);
-          if (split[0] === 'key') {
+          if (split[0] === prefix + 'key') {
             if (split.length >= 31) {
               const key = split.splice(1, 31);
               if (key.every(word => wordList.includes(word))) {
