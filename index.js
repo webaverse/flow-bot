@@ -218,9 +218,7 @@ Info
 .status - show your account details
 .balance - show your FT balance, or that of a user/address
 .inventory [@user|0xaddr]? - show your NFTs, or that of a user/address
-.address - print your address
-.publickey - print your public key
-.flowkey - print your Flow key, which some APIs use
+.address [@user]? - print your address, or that of a user
 .key - get your private key in a DM
      - can be used to log into the app
 
