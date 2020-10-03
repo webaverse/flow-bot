@@ -238,7 +238,11 @@ Minting
 .mint [count] - mint [count] FT to yourself (admin only)
 .mint (in the file upload comment) - mint NFT from file upload
 
-Key Management (must be done in DM to bot)
+Worlds
+.createworld - create a world and print its details
+.destroyworld [worldID] - destroy world with id [worldId]
+
+Key Management (DM to bot)
 .key [new mnemonic key] - set your Discord private key
 .key reset - generate and set a new Discord private key
 
