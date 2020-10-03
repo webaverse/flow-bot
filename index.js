@@ -207,9 +207,9 @@ const _readStorageHashAsBuffer = async hash => {
         if (message.channel.type === 'text') {
           // console.log('got message', message);
 
-          if (/grease/.test(message.content)) {
+          /* if (/grease/.test(message.content)) {
             message.author.send('i am NOT grease?!!!!');
-          }
+          } */
           const split = message.content.split(/\s+/);
           let match;
           if (split[0] === prefix + 'help') {
