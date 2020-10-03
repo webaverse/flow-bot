@@ -811,7 +811,7 @@ const _readStorageHashAsBuffer = async hash => {
               message.channel.send('<@!' + message.author.id + '>: failed to destroy world: ' + res.statusCode);
             }
           } else {
-            if (message.attachments.size > 0) {
+            if (split[0] === prefix + 'mint' && split.length === 1 && message.attachments.size > 0) {
               let {mnemonic, addr} = await _getUser();
               if (!mnemonic) {
                 const spec = await _genKey();
