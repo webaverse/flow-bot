@@ -214,22 +214,37 @@ const _readStorageHashAsBuffer = async hash => {
           let match;
           if (split[0] === prefix + 'help') {
             message.channel.send(`\`\`\`\
+Info
 .status - show your account details
 .balance - show your FT balance, or that of a user/address
 .inventory [@user|0xaddr]? - show your NFTs, or that of a user/address
-.send [@user|0xaddr] [amount] - send [amount] FT to user/address
-.transfer [@user|0xaddr] [id] - send [id] NFT to user/address
-.preview [id] - show preview of NFT [id] in channel
-.upload [id] - upload NFT [id] to channel
 .address - print your address
 .publickey - print your public key
 .flowkey - print your Flow key, which some APIs use
 .key - get your private key in a DM
-.name [newname] - set your name to [name] on the chain
-.avatar [id] - set your avatar to [id] on the chain
+     - can be used to log into the app
+
+Tokens
+.send [@user|0xaddr] [amount] - send [amount] FT to user/address
+.transfer [@user|0xaddr] [id] - send [id] NFT to user/address
+.preview [id] - show preview of NFT [id] in channel
+.upload [id] - upload NFT [id] to channel
 .get [id] [key] - get metadata key [key] for NFT [id]
 .set [id] [key] [value] - set metadata key [key] to [value] for NFT [id]
+
+Account
+.name [newname] - set your name to [name] on the chain
+.avatar [id] - set your avatar to [id] on the chain
+
+Minting
 .mint [count] - mint [count] FT to yourself (admin only)
+.mint (in the file upload comment) - mint NFT from file upload
+
+Key Management (must be done in DM to bot)
+.key [new mnemonic key] - set your Discord private key
+.key reset - generate and set a new Discord private key
+
+Help
 .help - show this info
 \`\`\``);
           } else if (split[0] === prefix + 'dump' && split.length >= 4) {
