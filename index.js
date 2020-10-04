@@ -226,6 +226,7 @@ Tokens
 .send [@user|0xaddr] [amount] - send [amount] FT to user/address
 .transfer [@user|0xaddr] [id] - send [id] NFT to user/address
 .preview [id] - show preview of NFT [id] in channel
+.gif [id] - show animated gif of NFT [id] in channel
 .upload [id] - upload NFT [id] to channel
 .get [id] [key] - get metadata key [key] for NFT [id]
 .set [id] [key] [value] - set metadata key [key] to [value] for NFT [id]
