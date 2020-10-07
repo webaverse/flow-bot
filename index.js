@@ -843,7 +843,12 @@ Help
               message.channel.send('<@!' + message.author.id + '>: failed to destroy world: ' + res.statusCode);
             }
           } else {
-            if (split[0] === prefix + 'mint' && split.length === 1 && message.attachments.size > 0) {
+            if (split[0] === prefix + 'mint' && message.attachments.size > 0) {
+              let quantity = parseInt(split[1], 10);
+              if (isNaN(quantity)) {
+                quantity = 1;
+              }
+
               let {mnemonic, addr} = await _getUser();
               if (!mnemonic) {
                 const spec = await _genKey();
@@ -881,7 +886,8 @@ Help
                             limit: 100,
                             transaction: contractSource
                               .replace(/ARG0/g, hash)
-                              .replace(/ARG1/g, name),
+                              .replace(/ARG1/g, name)
+                              .replace(/ARG2/g, quantity),
                             wait: true,
                           }),
                         });
