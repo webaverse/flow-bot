@@ -224,7 +224,7 @@ Info
 
 Tokens
 .send [@user|0xaddr] [amount] - send [amount] FT to user/address
-.transfer [@user|0xaddr] [id] - send [id] NFT to user/address
+.transfer [@user|0xaddr] [id] [quantity]? - send [quantity] [id] NFTs to user/address
 .preview [id] - show preview of NFT [id] in channel
 .gif [id] - show animated gif of NFT [id] in channel
 .upload [id] - upload NFT [id] to channel
@@ -541,8 +541,12 @@ Help
             } else {
               message.channcel.send('unknown user');
             }
-          } else if (split[0] === prefix + 'transfer' && split.length >=3 && !isNaN(parseInt(split[2], 10))) {
+          } else if (split[0] === prefix + 'transfer' && split.length >= 3 && !isNaN(parseInt(split[2], 10))) {
             const id = parseInt(split[2], 10);
+            let quantity = parseInt(split[3], 10);
+            if (isNaN(quantity)) {
+              quantity = 1;
+            }
             if (match = split[1].match(/<@!([0-9]+)>/)) {
               const userId = match[1];
               const member = message.channel.guild.members.cache.get(userId);
@@ -572,7 +576,8 @@ Help
                     limit: 100,
                     transaction: contractSource
                       .replace(/ARG0/g, id)
-                      .replace(/ARG1/g, '0x' + addr2),
+                      .replace(/ARG1/g, '0x' + addr2)
+                      .replace(/ARG2/g, quantity),
                     wait: true,
                   }),
                 });
@@ -606,7 +611,8 @@ Help
                   limit: 100,
                   transaction: contractSource
                     .replace(/ARG0/g, id)
-                    .replace(/ARG1/g, '0x' + addr2),
+                    .replace(/ARG1/g, '0x' + addr2)
+                    .replace(/ARG2/g, quantity),
                   wait: true,
                 }),
               });
