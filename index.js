@@ -861,7 +861,6 @@ Help
                 mnemonic = spec.mnemonic;
                 addr = spec.addr;
               }
-              // await _ensureBaked({addr, mnemonic});
 
               for (const [key, attachment] of message.attachments) {
                 const {name, url} = attachment;
