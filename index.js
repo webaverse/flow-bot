@@ -672,7 +672,8 @@ Help
               const id = parseInt(fields.find(field => field.name === 'id').value.value, 10);
               const hash = fields.find(field => field.name === 'hash').value.value;
               const filename = fields.find(field => field.name === 'filename').value.value;
-              return {id, hash, filename};
+              const balance = parseInt(fields.find(field => field.name === 'balance').value.value, 10);
+              return {id, hash, filename, balance};
             });
 
             let s = userLabel + ':\n'
