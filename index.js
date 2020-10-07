@@ -217,7 +217,7 @@ const _readStorageHashAsBuffer = async hash => {
 Info
 .status - show your account details
 .balance - show your FT balance, or that of a user/address
-.inventory [@user|0xaddr]? - show your NFTs, or that of a user/address
+.inventory [@user|0xaddr]? - show your NFTs, or those of a user/address
 .address [@user]? - print your address, or that of a user
 .key - get your private key in a DM
      - can be used to log into the app
