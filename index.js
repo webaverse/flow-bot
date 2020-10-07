@@ -428,8 +428,11 @@ Help
             } else {
               message.channel.send('no such user');
             }
-          } else if (split[0] === prefix + 'mint' && split.length >= 2 && !isNaN(parseFloat(split[1])) && message.author.id === adminUserId && message.attachments.size === 0) {
-            const amount = parseFloat(split[1]);
+          } else if (split[0] === prefix + 'mint' && message.author.id === adminUserId && message.attachments.size === 0) {
+            let amount = parseFloat(split[1]);
+            if (isNaN(amount)) {
+              amount = 1;
+            }
 
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
