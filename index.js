@@ -676,12 +676,13 @@ Help
               const hash = fields.find(field => field.name === 'hash').value.value;
               const filename = fields.find(field => field.name === 'filename').value.value;
               const balance = parseInt(fields.find(field => field.name === 'balance').value.value, 10);
-              return {id, hash, filename, balance};
+              const totalSupply = parseInt(fields.find(field => field.name === 'totalSupply').value.value, 10);
+              return {id, hash, filename, balance, totalSupply};
             });
 
             let s = userLabel + ':\n'
             if (entries.length > 0) {
-              s += '```' + entries.map((entry, i) => `${entry.id}. ${entry.filename} ${entry.hash} ${entry.balance > 1 ? `(x${entry.balance})` : ''}`).join('\n') + '```';
+              s += '```' + entries.map((entry, i) => `${entry.id}. ${entry.filename} ${entry.hash} (${entry.balance}/${entry.totalSupply})`).join('\n') + '```';
             } else {
               s += '```inventory empty```'
             }
