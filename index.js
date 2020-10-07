@@ -678,7 +678,7 @@ Help
 
             let s = userLabel + ':\n'
             if (entries.length > 0) {
-              s += '```' + entries.map((entry, i) => `${entry.id}. ${entry.filename} ${entry.hash}`).join('\n') + '```';
+              s += '```' + entries.map((entry, i) => `${entry.id}. ${entry.filename} ${entry.hash} ${entry.balance > 1 ? `(x${entry.balance})` : ''}`).join('\n') + '```';
             } else {
               s += '```inventory empty```'
             }
