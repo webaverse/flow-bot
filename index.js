@@ -131,7 +131,7 @@ const _readStorageHashAsBuffer = async hash => {
 };
 
 (async () => {
-  const {FungibleToken, NonFungibleToken, ExampleToken, ExampleNFT, ExampleAccount, host} = await flowConstants.load();
+  const {FungibleToken, NonFungibleToken, WebaverseToken, WebaverseNFT, WebaverseAccount, host} = await flowConstants.load();
 
   const client = new Discord.Client();
 
@@ -447,8 +447,8 @@ Help
               const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
                 method: 'POST',
                 body: JSON.stringify({
-                  address: config.exampleToken.address,
-                  mnemonic: config.exampleToken.mnemonic,
+                  address: config.webaverseToken.address,
+                  mnemonic: config.webaverseToken.mnemonic,
 
                   limit: 100,
                   transaction: contractSource

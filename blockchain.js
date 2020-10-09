@@ -12,14 +12,14 @@ const wordList = require('./wordlist.json');
 const flowConstants = require('./flow-constants.js');
 const config = require('./config.json');
 
-let FungibleToken, NonFungibleToken, ExampleToken, ExampleNFT, ExampleAccount, host;
+let FungibleToken, NonFungibleToken, WebaverseToken, WebaverseNFT, WebaverseAccount, host;
 flowConstants.load()
   .then(o => {
     FungibleToken = o.FungibleToken;
     NonFungibleToken = o.NonFungibleToken;
-    ExampleToken = o.ExampleToken;
-    ExampleNFT = o.ExampleNFT;
-    ExampleAccount = o.ExampleAccount;
+    WebaverseToken = o.WebaverseToken;
+    WebaverseNFT = o.WebaverseNFT;
+    WebaverseAccount = o.WebaverseAccount;
     host = o.host;
   });
 
@@ -157,13 +157,13 @@ async function getContractSource(p) {
 }
 
 async function resolveContractSource(contractSource) {
-  const {FungibleToken, NonFungibleToken, ExampleToken, ExampleNFT, ExampleAccount} = await flowConstants.load();
+  const {FungibleToken, NonFungibleToken, WebaverseToken, WebaverseNFT, WebaverseAccount} = await flowConstants.load();
   return contractSource
     .replace(/NONFUNGIBLETOKENADDRESS/g, NonFungibleToken)
     .replace(/FUNGIBLETOKENADDRESS/g, FungibleToken)
-    .replace(/EXAMPLETOKENADDRESS/g, ExampleToken)
-    .replace(/EXAMPLENFTADDRESS/g, ExampleNFT)
-    .replace(/EXAMPLEACCOUNTADDRESS/g, ExampleAccount);
+    .replace(/WEBAVERSETOKENADDRESS/g, WebaverseToken)
+    .replace(/WEBAVERSENFTADDRESS/g, WebaverseNFT)
+    .replace(/WEBAVERSEACCOUNTADDRESS/g, WebaverseAccount);
 }
 
 function hexToWordList(hex) {
