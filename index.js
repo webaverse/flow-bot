@@ -608,7 +608,7 @@ Help
                     address: addr,
                     mnemonic,
 
-                    limit: 100,
+                    limit: 1000,
                     transaction: contractSource
                       .replace(/ARG0/g, id)
                       .replace(/ARG1/g, '0x' + addr2)
