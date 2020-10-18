@@ -27,6 +27,13 @@ const guildId = '433492168825634816';
 const adminUserId = '284377201233887233';
 const tableName = 'users';
 const prefix = '.';
+const storageHost = 'https://storage.exokit.org';
+const previewHost = 'https://preview.exokit.org'
+
+function getExt(fileName) {
+  const match = fileName.match(/\.([^\.]+)$/);
+  return match && match[1].toLowerCase();
+}
 
 const _runArray = async (userKeys, array) => {
   const result = Array(array.length);
@@ -120,7 +127,7 @@ const _runSpec = async (userKeys, spec) => {
 };
 const _readStorageHashAsBuffer = async hash => {
   const bs = [];
-  const req = await fetch('https://storage.exokit.org/' + hash);
+  const req = await fetch(`${storageHost}/${hash}`);
   if (req.ok) {
     const arrayBuffer = await req.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -343,22 +350,44 @@ Help
 
             if (split[1]) {
               const avatar = split[1];
-              const contractSource = await blockchain.getContractSource('setUserData.cdc');
 
-              const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
-                method: 'POST',
-                body: JSON.stringify({
-                  address: addr,
-                  mnemonic,
+              const {filename, hash} = await (async () => {
+                const contractSource = await blockchain.getContractSource('getNft.cdc');
 
-                  limit: 100,
-                  transaction: contractSource
-                    .replace(/ARG0/g, 'avatar')
-                    .replace(/ARG1/g, avatar),
-                  wait: true,
-                }),
-              });
-              const response2 = await res.json();
+                const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    limit: 100,
+                    script: contractSource
+                      .replace(/ARG0/g, avatar),
+                    wait: true,
+                  }),
+                });
+                const response2 = await res.json();
+                const [hash, filename] = response2.encodedData.value.map(value => value.value && value.value.value);
+                return {hash, filename};
+              })();
+              const url = `${storageHost}/${hash}`;
+              const ext = getExt(filename);
+              const preview = `${previewHost}/${hash}.${ext}/preview.${previewExt}`;
+              {
+                const contractSource = await blockchain.getContractSource('setUserDataMulti.cdc');
+
+                const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    address: loginToken.addr,
+                    mnemonic: loginToken.mnemonic,
+
+                    limit: 100,
+                    transaction: contractSource
+                      .replace(/ARG0/g, JSON.stringify(['avatarUrl', 'avatarFilename', 'avatarPreview']))
+                      .replace(/ARG1/g, JSON.stringify([url, filename, preview])),
+                    wait: true,
+                  }),
+                });
+                const response2 = await res.json();
+              }
 
               message.channel.send('<@!' + message.author.id + '>: set avatar to ' + JSON.stringify(avatar));
             } else {
@@ -904,7 +933,7 @@ Help
 
                 await new Promise((accept, reject) => {
                   const proxyReq = https.request(url, proxyRes => {
-                    const req = https.request('https://storage.exokit.org/', {
+                    const req = https.request(storageHost, {
                       method: 'POST',
                     }, res => {
                       const bs = [];
@@ -936,7 +965,7 @@ Help
                         const response2 = await res.json();
 
                         if (!response2.transaction.errorMessage) {
-                          message.channel.send('<@!' + message.author.id + '>: minted ' + hash + ' (https://storage.exokit.org/' + hash + ')');
+                          message.channel.send('<@!' + message.author.id + '>: minted ' + hash + ' (' + storageHost + '/' + hash + ')');
                         } else {
                           message.channel.send('<@!' + message.author.id + '>: could not mint: ' + response2.transaction.errorMessage);
                         }
