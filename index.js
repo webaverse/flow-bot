@@ -377,8 +377,8 @@ Help
                 const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
                   method: 'POST',
                   body: JSON.stringify({
-                    address: loginToken.addr,
-                    mnemonic: loginToken.mnemonic,
+                    address: addr,
+                    mnemonic,
 
                     limit: 100,
                     transaction: contractSource
