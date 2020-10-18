@@ -28,7 +28,8 @@ const adminUserId = '284377201233887233';
 const tableName = 'users';
 const prefix = '.';
 const storageHost = 'https://storage.exokit.org';
-const previewHost = 'https://preview.exokit.org'
+const previewHost = 'https://preview.exokit.org';
+const previewExt = 'png';
 
 function getExt(fileName) {
   const match = fileName.match(/\.([^\.]+)$/);
