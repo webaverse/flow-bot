@@ -283,7 +283,7 @@ Help
             }
             // await _ensureBaked({addr, mnemonic});
 
-            const contractSource = await blockchain.getContractSource('getUserStatus.cdc');
+            const contractSource = await blockchain.getContractSource('getUserData.cdc');
 
             const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
               method: 'POST',
@@ -294,9 +294,9 @@ Help
               }),
             });
             const response2 = await res.json();
-            const [name, avatar] = response2.encodedData.value.map(value => value.value && value.value.value);
+            const [name, avatarUrl] = response2.encodedData.value.map(value => value.value && value.value.value);
 
-            message.channel.send('<@!' + message.author.id + '>: ' + `\`\`\`Name: ${name}\nAvatar: ${avatar}\n\`\`\``);
+            message.channel.send('<@!' + message.author.id + '>: ' + `\`\`\`Name: ${name}\nAvatar: ${avatarUrl}\n\`\`\``);
           } else if (split[0] === prefix + 'name') {
             let {mnemonic, addr} = await _getUser();
             if (!mnemonic) {
@@ -326,7 +326,7 @@ Help
 
               message.channel.send('<@!' + message.author.id + '>: set name to ' + JSON.stringify(name));
             } else {
-              const contractSource = await blockchain.getContractSource('getUserStatus.cdc');
+              const contractSource = await blockchain.getContractSource('getUserData.cdc');
 
               const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
                 method: 'POST',
@@ -337,7 +337,7 @@ Help
                 }),
               });
               const response2 = await res.json();
-              const [name, avatar] = response2.encodedData.value.map(value => value.value && value.value.value);
+              const [name, avatarUrl] = response2.encodedData.value.map(value => value.value && value.value.value);
 
               message.channel.send('<@!' + message.author.id + '>: name is ' + JSON.stringify(name));
             }
@@ -392,7 +392,7 @@ Help
 
               message.channel.send('<@!' + message.author.id + '>: set avatar to ' + JSON.stringify(avatar));
             } else {
-              const contractSource = await blockchain.getContractSource('getUserStatus.cdc');
+              const contractSource = await blockchain.getContractSource('getUserData.cdc');
 
               const res = await fetch(`https://accounts.exokit.org/sendTransaction`, {
                 method: 'POST',
@@ -403,9 +403,9 @@ Help
                 }),
               });
               const response2 = await res.json();
-              const [name, avatar] = response2.encodedData.value.map(value => value.value && value.value.value);
+              const [name, avatarUrl] = response2.encodedData.value.map(value => value.value && value.value.value);
 
-              message.channel.send('<@!' + message.author.id + '>: avatar is ' + JSON.stringify(avatar));
+              message.channel.send('<@!' + message.author.id + '>: avatar is ' + JSON.stringify(avatarUrl));
             }
           } else if (split[0] === prefix + 'balance') {
             let match;
